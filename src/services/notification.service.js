@@ -1,0 +1,87 @@
+import axios from "axios";
+
+import { BASE_URL } from "../../src/utils/api_base_url_configration";
+
+const token = localStorage.getItem("token");
+
+const getConfig = () => {
+  return {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+export const createNotifyServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "notify/create", formData, getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const updateNotifyServ = async (formData) => {
+  try {
+    const response = await axios.put(BASE_URL + "notify/update", formData, getConfig());
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const getNotifyServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "notify/list", formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const deleteNotifynServ = async (id) => {
+  try {
+    const response = await axios.delete(BASE_URL + "notify/delete/"+id);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const getNotificationServ = async (formData) => {
+  try {
+    const response = await axios.post(BASE_URL + "notification/list", formData);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+export const deleteNotificationServ = async (id) => {
+  try {
+    const response = await axios.delete(BASE_URL + "notification/delete/"+id);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+
+
+export const deleteNotifyServ = async (id) => {
+  try {
+    const response = await axios.delete(BASE_URL + "notify/delete/"+id);
+    return response;
+  } catch (error) {
+    // Handle error (e.g., log or throw an error)
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+};
