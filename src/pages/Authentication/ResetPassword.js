@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -9,9 +9,14 @@ import "./login.css";
 function ResetPassword() {
   const navigate = useNavigate();
 
-  // 🔑 Email / OTP usually stored from previous steps
-  const email = localStorage.getItem("resetEmail"); 
-  const otp = localStorage.getItem("resetOtp");
+  // 🔐 Temporary storage for security
+  const email = sessionStorage.getItem("resetEmail");
+  const otp = sessionStorage.getItem("resetOtp");
+
+  // 🔐 Redirect if accessed directly
+  useEffect(() => {
+    if (!email || !otp) navigate("/forgot-password");
+  }, [email, otp, navigate]);
 
   const formik = useFormik({
     initialValues: {
@@ -23,7 +28,6 @@ function ResetPassword() {
       password: Yup.string()
         .min(6, "Password must be at least 6 characters")
         .required("New password is required"),
-
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password")], "Passwords do not match")
         .required("Confirm password is required"),
@@ -31,21 +35,17 @@ function ResetPassword() {
 
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const payload = {
-          email,
-          otp,
-          newPassword: values.password,
-        };
+        const payload = { email, otp, newPassword: values.password };
 
         const res = await resetPasswordServ(payload);
 
         toast.success(res?.data?.message || "Password reset successfully");
 
-        // 🧹 clear temp data
-        localStorage.removeItem("resetEmail");
-        localStorage.removeItem("resetOtp");
+        // 🔐 Clear sensitive data
+        sessionStorage.removeItem("resetEmail");
+        sessionStorage.removeItem("resetOtp");
 
-        navigate("/login"); // ✅ back to login
+        navigate("/"); // back to login
       } catch (error) {
         toast.error(
           error?.response?.data?.message || "Failed to reset password"
@@ -59,11 +59,7 @@ function ResetPassword() {
   return (
     <div className="signin-container">
       <div className="signin-card">
-        <img
-          src="assets/images/logo.jpeg"
-          alt="Logo"
-          className="sign-logo"
-        />
+        <img src="assets/images/logo.jpeg" alt="Logo" className="sign-logo" />
 
         <h2>Reset Password</h2>
         <p className="text-muted text-center">
@@ -87,9 +83,7 @@ function ResetPassword() {
               value={formik.values.password}
             />
             {formik.touched.password && formik.errors.password && (
-              <div className="invalid-feedback">
-                {formik.errors.password}
-              </div>
+              <div className="invalid-feedback">{formik.errors.password}</div>
             )}
           </div>
 

@@ -30,37 +30,38 @@ function Login() {
 
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        let deviceId = localStorage.getItem("deviceId");
-        const response = await loginServ({ ...values, deviceId });
+        const deviceId = localStorage.getItem("deviceId");
 
-        if (response?.data?.statusCode === "200") {
-          toast.success(response?.data?.message);
+        const response = await loginServ({
+          ...values,
+          deviceId,
+        });
 
-          localStorage.setItem(
-            "token",
-            JSON.stringify(response?.data?.data?.token)
-          );
-          localStorage.setItem(
-            "user",
-            JSON.stringify(response?.data?.data)
-          );
-          localStorage.setItem(
-            "permissions",
-            JSON.stringify(response?.data?.data?.permissions)
-          );
+        if (response?.data?.statusCode === 200) {
+          const { token, permissions, ...user } = response.data.data;
+
+          toast.success(response.data.message);
+
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem("permissions", JSON.stringify(permissions));
 
           setGlobalState({
-            token: response?.data?.data?.token,
-            user: response?.data?.data,
-            permissions: response?.data?.data?.permissions,
+            token,
+            user,
+            permissions,
           });
 
-          navigate("/dashboard"); // ✅ forward after login
+          navigate("/dashboard");
         } else {
           toast.error(response?.data?.message);
         }
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Server error");
+        toast.error(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Server error"
+        );
       } finally {
         setSubmitting(false);
       }
@@ -72,7 +73,7 @@ function Login() {
       <div className="signin-card">
         <img
           src="assets/images/logo.jpeg"
-          alt="Rupee Loan Logo"
+          alt="Logo"
           className="sign-logo"
         />
 
@@ -82,20 +83,15 @@ function Login() {
           {/* EMAIL */}
           <div className="mb-3">
             <label>Email Address</label>
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="bi bi-envelope" />
-              </span>
-              <input
-                type="email"
-                name="email"
-                className="form-control"
-                placeholder="Enter your email"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-              />
-            </div>
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              placeholder="Enter email"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.email}
+            />
             {formik.touched.email && formik.errors.email && (
               <small className="text-danger">
                 {formik.errors.email}
@@ -107,18 +103,17 @@ function Login() {
           <div className="mb-3">
             <label>Password</label>
             <div className="input-group">
-              <span className="input-group-text">
-                <i
-                  className={!showPassword ? "bi bi-lock" : "bi bi-unlock"}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setShowPassword(!showPassword)}
-                ></i>
+              <span
+                className="input-group-text cursor"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <i className={showPassword ? "bi bi-unlock" : "bi bi-lock"} />
               </span>
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 className="form-control"
-                placeholder="Enter your password"
+                placeholder="Enter password"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.password}
@@ -131,7 +126,6 @@ function Login() {
             )}
           </div>
 
-          {/* FORGOT PASSWORD */}
           <div className="mb-3 text-end">
             <span
               className="forgot-password cursor"
@@ -141,11 +135,10 @@ function Login() {
             </span>
           </div>
 
-          {/* BUTTON */}
           <button
             type="submit"
             className="btn btn-gradient w-100"
-            disabled={formik.isSubmitting || !formik.isValid}
+            disabled={formik.isSubmitting}
           >
             {formik.isSubmitting ? "Secure Login..." : "Login"}
           </button>
@@ -156,6 +149,168 @@ function Login() {
 }
 
 export default Login;
+
+
+
+
+// import React, { useState } from "react";
+// import { useFormik } from "formik";
+// import * as Yup from "yup";
+// import { loginServ } from "../../services/authentication.services";
+// import { toast } from "react-toastify";
+// import { useGlobalState } from "../../GlobalProvider";
+// import { useNavigate } from "react-router-dom";
+// import "react-toastify/dist/ReactToastify.css";
+// import "./login.css";
+
+// function Login() {
+//   const { setGlobalState } = useGlobalState();
+//   const [showPassword, setShowPassword] = useState(false);
+//   const navigate = useNavigate();
+
+//   const formik = useFormik({
+//     initialValues: {
+//       email: "",
+//       password: "",
+//     },
+
+//     validationSchema: Yup.object({
+//       email: Yup.string()
+//         .email("Invalid email format")
+//         .required("Email is required"),
+//       password: Yup.string()
+//         .min(6, "Password must be at least 6 characters")
+//         .required("Password is required"),
+//     }),
+
+//     onSubmit: async (values, { setSubmitting }) => {
+//       try {
+//         let deviceId = localStorage.getItem("deviceId");
+//         const response = await loginServ({ ...values, deviceId });
+
+//         if (response?.data?.statusCode === "200") {
+//           toast.success(response?.data?.message);
+
+//           localStorage.setItem(
+//             "token",
+//             JSON.stringify(response?.data?.data?.token)
+//           );
+//           localStorage.setItem(
+//             "user",
+//             JSON.stringify(response?.data?.data)
+//           );
+//           localStorage.setItem(
+//             "permissions",
+//             JSON.stringify(response?.data?.data?.permissions)
+//           );
+
+//           setGlobalState({
+//             token: response?.data?.data?.token,
+//             user: response?.data?.data,
+//             permissions: response?.data?.data?.permissions,
+//           });
+
+//           navigate("/dashboard"); // ✅ forward after login
+//         } else {
+//           toast.error(response?.data?.message);
+//         }
+//       } catch (error) {
+//         toast.error(error?.response?.data?.message || "Server error");
+//       } finally {
+//         setSubmitting(false);
+//       }
+//     },
+//   });
+
+//   return (
+//     <div className="signin-container">
+//       <div className="signin-card">
+//         <img
+//           src="assets/images/logo.jpeg"
+//           alt="Rupee Loan Logo"
+//           className="sign-logo"
+//         />
+
+//         <h2>Sign In</h2>
+
+//         <form onSubmit={formik.handleSubmit}>
+//           {/* EMAIL */}
+//           <div className="mb-3">
+//             <label>Email Address</label>
+//             <div className="input-group">
+//               <span className="input-group-text">
+//                 <i className="bi bi-envelope" />
+//               </span>
+//               <input
+//                 type="email"
+//                 name="email"
+//                 className="form-control"
+//                 placeholder="Enter your email"
+//                 onChange={formik.handleChange}
+//                 onBlur={formik.handleBlur}
+//                 value={formik.values.email}
+//               />
+//             </div>
+//             {formik.touched.email && formik.errors.email && (
+//               <small className="text-danger">
+//                 {formik.errors.email}
+//               </small>
+//             )}
+//           </div>
+
+//           {/* PASSWORD */}
+//           <div className="mb-3">
+//             <label>Password</label>
+//             <div className="input-group">
+//               <span className="input-group-text">
+//                 <i
+//                   className={!showPassword ? "bi bi-lock" : "bi bi-unlock"}
+//                   style={{ cursor: "pointer" }}
+//                   onClick={() => setShowPassword(!showPassword)}
+//                 ></i>
+//               </span>
+//               <input
+//                 type={showPassword ? "text" : "password"}
+//                 name="password"
+//                 className="form-control"
+//                 placeholder="Enter your password"
+//                 onChange={formik.handleChange}
+//                 onBlur={formik.handleBlur}
+//                 value={formik.values.password}
+//               />
+//             </div>
+//             {formik.touched.password && formik.errors.password && (
+//               <small className="text-danger">
+//                 {formik.errors.password}
+//               </small>
+//             )}
+//           </div>
+
+//           {/* FORGOT PASSWORD */}
+//           <div className="mb-3 text-end">
+//             <span
+//               className="forgot-password cursor"
+//               onClick={() => navigate("/forgot-password")}
+//             >
+//               Forgot Password?
+//             </span>
+//           </div>
+
+//           {/* BUTTON */}
+//           <button
+//             type="submit"
+//             className="btn btn-gradient w-100"
+//             disabled={formik.isSubmitting || !formik.isValid}
+//           >
+//             {formik.isSubmitting ? "Secure Login..." : "Login"}
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Login;
 
 
 

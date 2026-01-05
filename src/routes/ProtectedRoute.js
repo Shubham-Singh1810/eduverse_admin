@@ -24,3 +24,4 @@ function ProtectedRoute({ allowedPermissions }) {
 }
 
 export default ProtectedRoute;
+

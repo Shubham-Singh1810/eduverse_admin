@@ -10,29 +10,27 @@ function ForgotPassword() {
   const navigate = useNavigate();
 
   const formik = useFormik({
-    initialValues: {
-      email: "",
-    },
+    initialValues: { email: "" },
 
     validationSchema: Yup.object({
       email: Yup.string()
-        .email("Enter a valid email address")
+        .email("Enter valid email")
         .required("Email is required"),
     }),
 
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const response = await forgotPasswordServ(values);
+        const res = await forgotPasswordServ(values);
 
-        if (response?.data?.statusCode === 200) {
-          toast.success(response.data.message);
+        if (res?.data?.statusCode === 200) {
+          toast.success(res.data.message);
 
-          // Save email for next step
-          localStorage.setItem("resetEmail", values.email);
+          // 🔐 secure temp storage
+          sessionStorage.setItem("resetEmail", values.email);
 
           navigate("/verify-otp");
         } else {
-          toast.error(response?.data?.message);
+          toast.error(res?.data?.message);
         }
       } catch (error) {
         toast.error(
@@ -54,24 +52,18 @@ function ForgotPassword() {
         />
 
         <h2>Forgot Password</h2>
-        <p className="text-muted text-center mb-3">
-          Enter your registered email to receive OTP
-        </p>
 
         <form onSubmit={formik.handleSubmit}>
-          {/* EMAIL */}
           <div className="mb-3">
             <label>Email Address</label>
             <input
               type="email"
               name="email"
               className="form-control"
-              placeholder="Enter your email"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.email}
             />
-
             {formik.touched.email && formik.errors.email && (
               <small className="text-danger">
                 {formik.errors.email}
@@ -79,16 +71,14 @@ function ForgotPassword() {
             )}
           </div>
 
-          {/* SUBMIT */}
           <button
             type="submit"
             className="btn btn-gradient w-100"
-            disabled={formik.isSubmitting || !formik.isValid}
+            disabled={formik.isSubmitting}
           >
             {formik.isSubmitting ? "Sending OTP..." : "Send OTP"}
           </button>
 
-          {/* BACK TO LOGIN */}
           <div className="text-center mt-3">
             <span
               className="cursor text-primary"
